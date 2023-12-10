@@ -15,24 +15,24 @@ jobs:
             - name: update ubuntu
               run: sudo apt-get -y update
             - name: install packer
-              run: >
-                curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+              run: |
+                curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - \
                 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
                 sudo apt-get -y install apt-transport-https
                 sudo apt-get -y update && sudo apt-get -y install packer
             - name: set environment variable
-              run: >
+              run: |
                 export PKR_VAR_clientId={{secrets.AZ_CLIENT_ID}}
                 export PKR_VAR_clientSecret={{secrets.AZ_CLIENT_SECRET}}
                 export PKR_VAR_subscription={{secrets.AZ_SUBSCRIPTION_ID}}
             - name: validate and init packer
-              run: >
+              run: |
                 packer validate ubuntuserver.pkr.hcl 
                 packer init ubuntuserver.pkr.hcl
             - name: build packer
-              run: >
+              run: |
                 packer build ubuntuserver.pkr.hcl
             - name: get_output
-              run: >
+              run: |
                cat ubuntu_manifest.json
             
