@@ -1,0 +1,22 @@
+
+    // "appId": "9d0f7c2b-fb0e-4696-8cee-33beb8812113",
+    // "displayName": "azure-cli-2023-12-02-16-04-13",
+    // "password": "V9m8Q~usVMeEr6HRKhBzWeeLNugtMYz95Vd5SaVc",
+    // "tenant": "5319d876-398b-405d-a5d8-c619e6827629",
+    // "new":{
+    //     "appId": "133cab1d-0a28-4367-beed-20ad368c10f2",
+    //     "displayName": "msdocs-sp-311237280",
+    //     "password": "~vP8Q~peRedAOMkB0C5O2gSWgKu368F188b.yaw.",
+    //     "tenant": "5319d876-398b-405d-a5d8-c619e6827629"
+    //   },
+
+    //   {
+    //     "client_id": "2a04e19d-996f-4541-a32f-744f95c5f4d0",
+    //     "client_secret": "Q6F8Q~rgmrHXpglLsIDkvtt6s4wTrY1__wCRycpX",
+    //     "tenant_id": "5319d876-398b-405d-a5d8-c619e6827629"
+    //   }
+
+
+ client_id       = "2a04e19d-996f-4541-a32f-744f95c5f4d0"
+  client_secret   = "Q6F8Q~rgmrHXpglLsIDkvtt6s4wTrY1__wCRycpX"
+  subscription: "1869bf53-59b1-4df5-b50b-9907ccf235b0"

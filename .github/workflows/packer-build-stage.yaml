@@ -1,0 +1,38 @@
+name: packer-build-stage
+
+on:
+    push:
+        branches:
+            - master
+
+
+jobs:
+    dev_build:
+        runs-on: ubuntu:latest
+        steps:
+            - name: checkout code
+              uses: actions/checkout@v2.3.4
+            - name: update ubuntu
+              run: apt-get update
+            - name: install packer
+              run: >
+                curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+                sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+                sudo apt-get install apt-transport-https
+                sudo apt-get update && sudo apt-get install packer
+            - name: set environment variable
+              run: >
+                export PKR_VAR_clientId={{secrets.AZ_CLIENT_ID}}
+                export PKR_VAR_clientSecret={{secrets.AZ_CLIENT_SECRET}}
+                export PKR_VAR_subscription={{secrets.AZ_SUBSCRIPTION_ID}}
+            - name: validate and init packer
+              run: >
+                packer validate ubuntuserver.pkr.hcl 
+                packer init ubuntuserver.pkr.hcl
+            - name: build packer
+              run: >
+                packer build ubuntuserver.pkr.hcl
+            - name: get_output
+              run: >
+               cat ubuntu_manifest.json
+            

@@ -1,0 +1,18 @@
+stages:
+ - build
+
+.deployed-rules:
+  rules:
+  - if: $PACKER_PLUGIN_NAME == 'azure'
+
+install-packer:
+ only:
+ - master
+ except:
+  changes:
+    - '*.md'
+ stage: build
+ image: ubuntu:latest
+ 
+ script:
+   - apt-get update

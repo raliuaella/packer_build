@@ -1,0 +1,6 @@
+*.zip
+**/*.zip
+ops/
+ops/.terraform
+*.terraform
+**/*.terraform
