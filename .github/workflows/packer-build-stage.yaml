@@ -25,9 +25,9 @@ jobs:
                 sudo apt -y update && sudo apt -y install packer
             - name: set environment variable
               run: |
-                export PKR_VAR_clientId={{secrets.AZ_CLIENT_ID}}
-                export PKR_VAR_clientSecret={{secrets.AZ_CLIENT_SECRET}}
-                export PKR_VAR_subscription={{secrets.AZ_SUBSCRIPTION_ID}}
+                export PKR_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export PKR_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export PKR_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
             - name: validate and init packer
               run: |
                 packer init ubuntuserver.pkr.hcl
