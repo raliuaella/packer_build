@@ -30,8 +30,8 @@ jobs:
                 export PKR_VAR_subscription={{secrets.AZ_SUBSCRIPTION_ID}}
             - name: validate and init packer
               run: |
-                packer validate ubuntuserver.pkr.hcl 
                 packer init ubuntuserver.pkr.hcl
+                packer validate ubuntuserver.pkr.hcl 
             - name: build packer
               run: |
                 packer build ubuntuserver.pkr.hcl
