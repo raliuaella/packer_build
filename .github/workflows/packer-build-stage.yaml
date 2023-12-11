@@ -37,6 +37,7 @@ jobs:
                 packer validate ubuntuserver.pkr.hcl
             - name: build packer
               run: |
+                ls -lah
                 packer build ubuntuserver.pkr.hcl --force
             - name: get_output
               run: |
