@@ -34,7 +34,7 @@ jobs:
                 export PKR_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
                 export PKR_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
                 packer init ubuntuserver.pkr.hcl
-                packer validate ubuntuserver.pkr.hcl 
+                packer validate ubuntuserver.pkr.hcl --force
             - name: build packer
               run: |
                 packer build ubuntuserver.pkr.hcl
