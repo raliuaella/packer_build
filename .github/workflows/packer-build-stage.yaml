@@ -38,7 +38,7 @@ jobs:
             - name: build packer
               run: |
                 ls -lah
-                packer build ubuntuserver.pkr.hcl --force
+                packer build ubuntuserver.pkr.hcl -force
             - name: get_output
               run: |
                cat ubuntu_manifest.json
