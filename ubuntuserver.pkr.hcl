@@ -76,9 +76,7 @@ build {
   }
 
 
-  post-processor "manifest" {
-    name = "ubuntu_manifest.json"
-  }
+  post-processor "manifest" {}
   post-processor "compress" {
     output = "packer_{{.BuildName }}-image.zip"
   }
