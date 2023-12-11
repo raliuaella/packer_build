@@ -36,7 +36,11 @@ jobs:
                 packer init ubuntuserver.pkr.hcl
                 packer validate ubuntuserver.pkr.hcl
             - name: build packer
-              run: packer build -force ubuntuserver.pkr.hcl 
+              run: |
+                export PKR_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export PKR_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export PKR_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+                packer build -force ubuntuserver.pkr.hcl 
             - name: get_output
               run: |
                cat ubuntu_manifest.json
