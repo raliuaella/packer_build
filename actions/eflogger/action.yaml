@@ -1,0 +1,12 @@
+name: 'logger'
+description: 'simply log activities'
+inputs:
+ logfilename:
+  required: false
+  description: 'description of the file to create'
+ autogeneratefile:
+  required: false
+  default: false
+runs:
+ using: "node12"
+ main: "index.js"

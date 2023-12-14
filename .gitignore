@@ -4,3 +4,4 @@ ops/
 ops/.terraform
 *.terraform
 **/*.terraform
+actions/eflogger/node_modules
