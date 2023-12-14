@@ -4,10 +4,12 @@ on:
     push:
         branches:
             - master
-
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    PACKER_MANIFEST_FILENAME: packer-manifest.json
 
 jobs:
-    dev_build:
+    build:
         runs-on: ubuntu-latest
         steps:
             - name: checkout code
@@ -59,5 +61,21 @@ jobs:
               run: |
                ls -lah
                sudo apt install jq -y
-               cat packer-manifest.json
+               cat ${{ env.PACKER_MANIFEST_FILENAME }}
+            - name: get artifactid
+              id: getartifactid
+              run: |
+               artifactid=$(cat ${{ env.PACKER_MANIFEST_FILENAME }} | jq '.builds[0].artifact_id')
+               echo "artifactid=$artifactid" >> $GITHUB_OUTPUT
+             
+
+        outputs:
+            artifactid: ${{ steps.getartifactid.outputs.artifactid }}
             
+    deploy:
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+            - name: getoutputfrombuildstage
+              run: |
+                echo ${{ needs.build.outputs.artifactid }}
