@@ -24,7 +24,7 @@ jobs:
                 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
                 sudo apt -y update && sudo apt -y install packer
             - name: eflogger
-              uses: 'actions/eflogger'
+              uses: ./actions/eflogger
               with:
                 autogeneratefile: true
             - name: set environment variable
