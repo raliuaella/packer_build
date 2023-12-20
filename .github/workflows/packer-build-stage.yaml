@@ -1,0 +1,125 @@
+name: packer-build-stage
+
+on:
+    push:
+        branches:
+            - master
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    RESOURCE_GROUP: packerbuildlab
+    MANAGED_IMAGE_NAME: ubuntusrverbuildone
+    PACKER_MANIFEST_FILENAME: packer-manifest.json
+    TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout code
+              uses: actions/checkout@v2.3.4
+            - name: update ubuntu
+              run: sudo apt-get -y update
+            - name: install packer
+              run: |
+                # curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - 
+                # sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+                # sudo apt-get -y install apt-transport-https
+                # sudo apt-get -y update && sudo apt-get -y install packer
+                wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+                echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+                sudo apt -y update && sudo apt -y install packer
+            - name: install nodejs
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y ca-certificates curl gnupg
+                sudo mkdir -p /etc/apt/keyrings
+                curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+                sudo apt-get update
+                sudo apt-get install nodejs -y
+            - name: install eflogger packer
+              run: cd actions/eflogger && npm install
+            - name: eflogger
+              uses: ./actions/eflogger
+              with:
+                autogeneratefile: true
+            - name: set environment variable
+              run: |
+                export PKR_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export PKR_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export PKR_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+            - name: validate and init packer
+              run: |
+                export PKR_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export PKR_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export PKR_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+                packer init ubuntuserver.pkr.hcl
+                packer validate ubuntuserver.pkr.hcl
+            - name: build packer
+              run: |
+                export PKR_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export PKR_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export PKR_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+                packer build -force ubuntuserver.pkr.hcl 
+            - name: get_output
+              run: |
+               ls -lah
+               sudo apt install jq -y
+               cat ${{ env.PACKER_MANIFEST_FILENAME }}
+            - name: get artifactid
+              id: getartifactid
+              run: |
+               artifactid=$(cat ${{ env.PACKER_MANIFEST_FILENAME }} | jq '.builds[0].artifact_id')
+               echo "artifactid=$artifactid" >> $GITHUB_OUTPUT
+             
+
+        outputs:
+            artifactid: ${{ steps.getartifactid.outputs.imagename }}
+            
+    deploy:
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+            - name: install terraform
+              run: |
+                sudo apt-get -y update && sudo apt-get install -y gnupg software-properties-common
+                wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+                gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
+                echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+                sudo apt -y update
+                sudo apt-get -y install terraform
+                terraform -help
+            - name: initialize terraform
+              run: |
+                cd ops
+                export TF_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export TF_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export TF_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+                export TF_VAR_rgname=${{ env.RESOURCE_GROUP }}
+                export TF_VAR_customimagename=${{ env.MANAGED_IMAGE_NAME }} 
+                export TF_VAR_tenantId=${{ env.TENANT_ID }}
+                terraform init
+            - name: terraform plan
+              id: tfplan
+              if: ${{ success()}}
+              run: |
+                echo "setting env variables"
+                export TF_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export TF_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export TF_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+                export TF_VAR_rgname=${{ env.RESOURCE_GROUP }}
+                export TF_VAR_customimagename=${{ env.MANAGED_IMAGE_NAME }} 
+                export TF_VAR_tenantId=${{ env.TENANT_ID }}
+                terraform validate
+                terraform fmt
+                terraform plan -out "plans.tfplan"
+            - name: terraform apply
+              id: tfapply
+              if: ${{ success() }}
+              run: |
+                export TF_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
+                export TF_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
+                export TF_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}
+                export TF_VAR_rgname=${{ env.RESOURCE_GROUP }}
+                export TF_VAR_customimagename=${{ env.MANAGED_IMAGE_NAME }} 
+                export TF_VAR_tenantId=${{ env.TENANT_ID }} 
+                terraform apply plans.tfplan

@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "name": "centos-ndeojs-angular-buoild",
+      "builder_type": "azure-arm",
+      "build_time": 1702634946,
+      "files": null,
+      "artifact_id": "/subscriptions/1869bf53-59b1-4df5-b50b-9907ccf235b0/resourceGroups/packerbuildlab/providers/Microsoft.Compute/images/ubuntusrverbuildone",
+      "packer_run_uuid": "b3565885-1c5a-3a0f-ff77-e179ef31b804",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "b3565885-1c5a-3a0f-ff77-e179ef31b804"
+}
