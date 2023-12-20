@@ -38,10 +38,10 @@ jobs:
                 sudo apt-get install nodejs -y
             - name: install eflogger packer
               run: cd actions/eflogger && npm install
-            - name: eflogger
-              uses: ./actions/eflogger
-              with:
-                autogeneratefile: true
+            # - name: eflogger
+            #   uses: ./actions/eflogger
+            #   with:
+            #     autogeneratefile: true
             - name: set environment variable
               run: |
                 export PKR_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
