@@ -3,7 +3,7 @@ name: packer-build-stage
 on:
     push:
         branches:
-            - master
+            - deploy
 env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     RESOURCE_GROUP: packerbuildlab
