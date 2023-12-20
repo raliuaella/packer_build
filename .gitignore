@@ -20,3 +20,4 @@ ops/remotestate/frommodule/.terraform.lock.hcl
 ops/remotestate/frommodule/*.zip
 remotestate/frommodule/debug/
 config.yaml
+dev-inventory

@@ -90,7 +90,7 @@ jobs:
                 terraform -help
             - name: initialize terraform
               run: |
-                cd ops
+                ls -lah
                 export TF_VAR_clientId=${{ secrets.AZ_CLIENT_ID }}
                 export TF_VAR_clientSecret=${{ secrets.AZ_CLIENT_SECRET }}
                 export TF_VAR_subscription=${{ secrets.AZ_SUBSCRIPTION_ID }}

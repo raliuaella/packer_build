@@ -45,6 +45,12 @@ variable "packermanifestoutputname" {
   default = "packer-manifest.json"
 }
 
+variable "environmentname" {
+  type    = string
+  default = "dev"
+}
+
+
 
 
 provider "azurerm" {
@@ -85,27 +91,27 @@ resource "random_string" "networkname" {
 
 resource "azurerm_virtual_network" "vnet" {
   resource_group_name = var.rgname
-  name                = random_string.networkname.result
-  address_space       = ["10.0.1.0/16"]
+  name                = "${var.environmentname}vnetwork"
+  address_space       = ["10.0.0.0/16"]
   location            = "eastus"
 
 }
 
 resource "azurerm_subnet" "vsubnet" {
-  name                 = "${random_string.networkname.result}subnet"
+  name                 = "${azurerm_virtual_network.vnet.name}subnet"
   virtual_network_name = azurerm_virtual_network.vnet.name
   resource_group_name  = var.rgname
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_network_interface" "vnetinterface" {
-  name                = "${random_string.networkname.result}vnetinterface"
+  name                = "${azurerm_virtual_network.vnet.name}vnetinterface"
   depends_on          = [azurerm_virtual_network.vnet]
   resource_group_name = var.rgname
   location            = local.resourcelocation
 
   ip_configuration {
-    name                          = "${random_string.networkname.result}ip"
+    name                          = "${azurerm_virtual_network.vnet.name}ip"
     subnet_id                     = azurerm_subnet.vsubnet.id
     private_ip_address_allocation = "Dynamic"
   }
@@ -117,11 +123,13 @@ data "azurerm_image" "managedimagename" {
 }
 
 resource "azurerm_linux_virtual_machine" "linuxvm" {
-  name                  = "${random_string.networkname.result}linuxvm"
+  name                  = "${azurerm_virtual_network.vnet.name}linuxvm"
   resource_group_name   = var.rgname
   location              = local.resourcelocation
   network_interface_ids = [azurerm_network_interface.vnetinterface.id]
+  disable_password_authentication = false
   admin_username        = "olatunde"
+  admin_password = "WEBEL2023@DVorakL"
   size                  = "Standard_DS1_v2"
   os_disk {
     caching              = "ReadWrite"
@@ -129,6 +137,16 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
   }
 
   source_image_id = data.azurerm_image.managedimagename.id
+}
+
+resource "local_file" "inventory" {
+  filename = "${var.environmentname}-inventory"
+  content = templatefile("${path.module}/files/tf-inventory-template.tpl", {
+    machines = zipmap(["devmachineone"], azurerm_network_interface.vnetinterface.private_ip_addresses)
+  })
+
+
+
 }
 
 # data "archive_file" "archivefoldercontent" {
@@ -184,7 +202,7 @@ output "info" {
 
 output "vmresult" {
   #value = data.azurerm_image.ubuntubuildone
-  value = azurerm_linux_virtual_machine.linuxvm
+  value     = azurerm_linux_virtual_machine.linuxvm
   sensitive = true
   #value = azurerm_storage_blob.uploadfilecontent
 }
